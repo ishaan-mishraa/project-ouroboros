@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Shield, Wifi, WifiOff, Activity } from "lucide-react"
+import { Wifi, WifiOff, Activity } from "lucide-react"
+import Image from 'next/image'
 
 export function TopNav() {
   const [time, setTime] = useState<string>("")
@@ -34,11 +35,15 @@ export function TopNav() {
     <header className="h-14 border-b border-border bg-card/80 backdrop-blur-sm flex items-center justify-between px-4">
       {/* Left: Logo & Title */}
       <div className="flex items-center gap-3">
-        <div className="relative">
-          <Shield className="h-8 w-8 text-primary" />
-          <div className="absolute inset-0 text-primary blur-sm opacity-50">
-            <Shield className="h-8 w-8" />
-          </div>
+        {/* UPDATED: Replaced Shield placeholder with actual logo */}
+        <div className="flex items-center">
+          <Image 
+  src="/logo.png" 
+  alt="Project Ouroboros Logo" 
+  width={48} 
+  height={48} 
+  className="h-16 w-16 rounded-full object-cover" 
+/>
         </div>
         <div className="flex flex-col">
           <span className="text-xs text-muted-foreground uppercase tracking-[0.3em]">
@@ -66,9 +71,12 @@ export function TopNav() {
         </div>
         <div className="h-4 w-px bg-border" />
         <div className="flex items-center gap-2 text-xs">
-          <Activity className="h-3 w-3 text-primary" />
-          <span className="text-muted-foreground">NEURAL NET</span>
-          <span className="text-primary">ACTIVE</span>
+          <span className="text-muted-foreground">ENGINE STATS</span>
+          {/* Custom label instead of icon for variety */}
+          <div className="flex items-center gap-1.5 border border-primary/20 px-1.5 py-0.5 rounded bg-black">
+            <Activity className="h-3 w-3 text-primary animate-pulse" />
+            <span className="text-primary text-[10px] font-bold">LATEST GEN / ACTIVE</span>
+          </div>
         </div>
       </div>
 
@@ -79,7 +87,8 @@ export function TopNav() {
             <Wifi className="h-4 w-4 text-success" />
           ) : (
             <WifiOff className="h-4 w-4 text-destructive" />
-          )}
+          )
+          }
           <span
             className={`text-xs ${isOnline ? "text-success" : "text-destructive"}`}
           >

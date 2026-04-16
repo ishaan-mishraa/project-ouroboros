@@ -11,7 +11,6 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Project Ouroboros | Tactical Intelligence Dashboard',
   description: 'Geopolitical Intelligence Analysis Platform - Classified',
-  generator: 'v0.app',
   icons: {
     icon: [
       {
@@ -22,6 +21,7 @@ export const metadata: Metadata = {
         url: '/icon-dark-32x32.png',
         media: '(prefers-color-scheme: dark)',
       },
+      // If you don't have an SVG, you can remove this block
       {
         url: '/icon.svg',
         type: 'image/svg+xml',
