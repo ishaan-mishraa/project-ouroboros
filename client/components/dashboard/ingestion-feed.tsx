@@ -59,7 +59,7 @@ export function IngestionFeed() {
     if (!inputText.trim()) return
     setIsProcessing(true)
     try {
-      await fetch("http://localhost:8787/ingest", {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ingest`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: inputText }),
       })
       setInputText("")
@@ -75,7 +75,7 @@ export function IngestionFeed() {
   const handleGlobalSync = async () => {
     setIsSyncing(true)
     try {
-      await fetch("http://localhost:8787/sync")
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sync`)
       fetchHistory() // Refresh the feed with the new global data
     } catch (err) {
       console.error("Sync Failure")
