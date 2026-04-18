@@ -74,36 +74,46 @@ export default function OuroborosGraph() {
       };
     });
 
-    // 3. Map Dynamic Edges
-    const newEdges: Edge[] = [];
-    const edgeSet = new Set();
+    // 3. Map Dynamic Edges (Fixed Logic)
+    const edgeMap = new Map();
 
-    for (let i = 0; i < cleanedData.length - 1; i++) {
-      const r1 = cleanedData[i];
-      const r2 = cleanedData[i+1];
+    // Nested loop to cross-reference all reports against each other
+    for (let i = 0; i < cleanedData.length; i++) {
+      for (let j = i + 1; j < cleanedData.length; j++) {
+        const r1 = cleanedData[i];
+        const r2 = cleanedData[j];
 
-      if (r1.actor !== r2.actor) {
-        const edgeId = [r1.actor, r2.actor].sort().join('-');
-        
-        if (!edgeSet.has(edgeId)) {
-          edgeSet.add(edgeId);
+        // Only compare different actors
+        if (r1.actor !== r2.actor) {
+          // Create a consistent ID regardless of order
+          const edgeId = [r1.actor, r2.actor].sort().join('-');
           const isConflict = Math.abs(r1.sentiment - r2.sentiment) > 1.2;
 
-          newEdges.push({
-            id: `edge-${r1.id}-${r2.id}`,
-            source: r1.actor,
-            target: r2.actor,
-            type: isConflict ? 'dissonance' : 'default',
-            animated: !isConflict,
-            style: { 
-              stroke: isConflict ? '#DC3545' : '#00FFFF', 
-              strokeWidth: isConflict ? 3 : 1.5,
-              opacity: isConflict ? 1 : 0.4
-            }
-          });
+          if (!edgeMap.has(edgeId)) {
+            // First time seeing this connection, map it
+            edgeMap.set(edgeId, { isConflict, r1, r2 });
+          } else if (isConflict) {
+            // If the connection exists but we just found a conflict, upgrade it permanently
+            edgeMap.get(edgeId).isConflict = true;
+          }
         }
       }
     }
+
+    // Convert the edge map back into an array for React Flow
+    const newEdges: Edge[] = Array.from(edgeMap.values()).map(({ isConflict, r1, r2 }) => ({
+      id: `edge-${r1.actor}-${r2.actor}`,
+      source: r1.actor,
+      target: r2.actor,
+      type: isConflict ? 'dissonance' : 'default',
+      animated: !isConflict,
+      style: { 
+        stroke: isConflict ? '#DC3545' : '#00FFFF', 
+        strokeWidth: isConflict ? 3 : 1.5,
+        opacity: isConflict ? 1 : 0.4
+      }
+    }));
+
     setNodes(newNodes);
     setEdges(newEdges);
   }, [setNodes, setEdges]);
