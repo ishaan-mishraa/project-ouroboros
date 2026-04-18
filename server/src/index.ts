@@ -29,8 +29,8 @@ async function runGlobalSync(env: Bindings) {
   try {
     // --- SOURCE 1: NEWS API ---
     console.log("📡 FETCHING SOURCE 1: NewsAPI...")
-    const url = `https://newsapi.org/v2/everything?q=geopolitics+military+diplomacy&language=en&sortBy=publishedAt&pageSize=5&apiKey=${env.NEWS_API_KEY}`
-    const newsRes = await fetch(url, { headers: { 'User-Agent': 'Ouroboros-Engine/1.0' } })
+    const newsUrl = `https://newsapi.org/v2/everything?q=geopolitics+military+diplomacy&language=en&sortBy=publishedAt&pageSize=5&apiKey=${env.NEWS_API_KEY}`
+    const newsRes = await fetch(newsUrl, { headers: { 'User-Agent': 'Ouroboros-Engine/1.0' } })
     const newsData: any = await newsRes.json()
     
     if (newsData.articles) {
@@ -61,6 +61,23 @@ async function runGlobalSync(env: Bindings) {
       }
     }
 
+    // --- SOURCE 3: GDELT PROJECT ---
+    console.log("📡 FETCHING SOURCE 3: GDELT 2.0 API...")
+    try {
+        const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=(military OR diplomacy OR geopolitics OR conflict)&mode=artlist&maxrecords=15&format=json&sort=datedesc`
+        const gdeltRes = await fetch(gdeltUrl)
+        const gdeltData: any = await gdeltRes.json()
+        
+        if (gdeltData.articles) {
+            gdeltData.articles.forEach((a: any) => {
+                // GDELT primarily relies on the title for immediate context
+                rawArticles.push({ title: a.title, description: '' })
+            })
+        }
+    } catch (e) {
+        console.error("⚠️ Failed to fetch from GDELT Project.")
+    }
+
     // --- REDUNDANCY FILTER ---
     console.log(`🧹 AGGREGATED ${rawArticles.length} RAW ARTICLES. Running Deduplication...`)
     const uniqueArticles = [];
@@ -85,7 +102,7 @@ async function runGlobalSync(env: Bindings) {
 
     for (const article of uniqueArticles) {
       console.log(`\n⚙️ PROCESSING: "${article.title.substring(0, 40)}..."`)
-      const text = `${article.title}. ${article.description}`;
+      const text = `${article.title}. ${article.description}`.trim();
       
       // Database check for historical redundancy
       const { data: exists } = await supabase.from('intelligence_reports').select('id').eq('statement', text).maybeSingle()
@@ -164,7 +181,7 @@ app.post('/ingest', async (c) => {
       contents: text,
       config: { outputDimensionality: 768 } 
     })
-    const embedding = embedResult.embeddings[0].values
+    const embedding = embed;
 
     const { data: matches } = await supabase.rpc('match_intelligence', {
       query_embedding: embedding, match_threshold: 0.8, match_count: 5
