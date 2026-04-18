@@ -64,7 +64,7 @@ async function runGlobalSync(env: Bindings) {
     // --- SOURCE 3: GDELT PROJECT ---
     console.log("📡 FETCHING SOURCE 3: GDELT 2.0 API...")
     try {
-        const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=(military OR diplomacy OR geopolitics OR conflict)&mode=artlist&maxrecords=15&format=json&sort=datedesc`
+        const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=(military%20OR%20diplomacy%20OR%20geopolitics%20OR%20conflict)&mode=artlist&maxrecords=15&format=json&sort=datedesc`
         const gdeltRes = await fetch(gdeltUrl)
         const gdeltData: any = await gdeltRes.json()
         
